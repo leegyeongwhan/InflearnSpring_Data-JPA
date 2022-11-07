@@ -1,27 +1,43 @@
 package study.datajpa.entity;
 
-import lombok.Getter;
+import lombok.*;
+import org.springframework.context.annotation.Lazy;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "username", "age"})
+
 public class Member {
 
     @Id
     @GeneratedValue
+
     private Long id;
     private String userName;
+    int age;
 
-    protected Member() {
-
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     public Member(String name) {
         this.userName = name;
     }
 
+    public Member(String userName, int age, Team team) {
+        this.userName = userName;
+        this.age = age;
+        if (team != null) {
+            changeTeam(team);
+        }
+    }
 
+    public void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
+    }
 }
