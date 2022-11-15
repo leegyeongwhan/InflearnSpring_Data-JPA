@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@Rollback(value = false)
+@Rollback()
 class MemberJpaRepositoryTest {
 
     @Autowired
@@ -69,5 +69,24 @@ class MemberJpaRepositoryTest {
         assertThat(result.get(0).getUsername()).isEqualTo("AAA");
         assertThat(result.get(0).getAge()).isEqualTo(20);
         assertThat(result.size()).isEqualTo(1);
+    }
+
+
+    @Test
+    public void paging() {
+        memberJpaRepository.save(new Member("member1", 10));
+        memberJpaRepository.save(new Member("member2", 10));
+        memberJpaRepository.save(new Member("member3", 10));
+        memberJpaRepository.save(new Member("member4", 10));
+        memberJpaRepository.save(new Member("member5", 10));
+
+        int age = 10;
+        int offset = 0;
+        int limit = 3;
+        List<Member> page = memberJpaRepository.findByPage(10, 0, 3);
+        long totalCount = memberJpaRepository.totalCount(age);
+
+        assertThat(page.size()).isEqualTo(3);
+        assertThat(totalCount).isEqualTo(5);
     }
 }
