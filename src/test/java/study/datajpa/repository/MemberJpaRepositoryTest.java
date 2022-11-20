@@ -88,5 +88,6 @@ class MemberJpaRepositoryTest {
 
         assertThat(page.size()).isEqualTo(3);
         assertThat(totalCount).isEqualTo(5);
+
     }
 }

@@ -4,6 +4,9 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -14,6 +17,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -92,7 +96,7 @@ class MemberRepositoryTest {
         assertThat(result.size()).isEqualTo(1);
     }
 
- //   @Test
+    //   @Test
     public void nameQuery() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("AAA", 20);
@@ -162,9 +166,37 @@ class MemberRepositoryTest {
         Member m2 = new Member("AAA", 20);
         memberRepository.save(m1);
         memberRepository.save(m2);
-     //   Member aaa = memberRepository.findByUsername("AAA");
+        //   Member aaa = memberRepository.findByUsername("AAA");
 
     }
 
+    @Test
+    public void paging() {
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
 
+
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+        int age = 10;
+        Page<Member> page = memberRepository.findByAge(age, pageRequest);
+        Page<MemberDto> map = page.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
+
+
+        //then
+        List<Member> content = page.getContent();
+        int totalPages = page.getTotalPages();
+        System.out.println("MemberRepositoryTest.paging" + totalPages);
+        for (Member member : content) {
+            System.out.println(member);
+        }
+
+        assertThat(content.size()).isEqualTo(5);
+        assertThat(page.getNumber()).isEqualTo(0);
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
+    }
 }
